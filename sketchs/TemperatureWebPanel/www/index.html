@@ -1,16 +1,80 @@
 <!DOCTYPE html>
 <html>
 	<head>
-	<script type="text/javascript" src="zepto.min.js"></script>
-	  <script type="text/javascript">
-	   	function refresh() {
-		  	$('#content').load('/arduino/temperature');
-	  	}
-</script>
+	<script type="text/javascript" src="jquery.min.js"></script>
+	<script type="text/javascript">
+		function refresh() {
+			$('#heater').load('/arduino/heater');
+			$('#bowl').load('/arduino/bowl');
+		  	$('#air_temp').load('/arduino/air_temp');
+		  	$('#choc_temp').load('/arduino/choc_temp');
+		  	$('#melt_temp').load('/arduino/melt_temp');
+		  	$('#temper_temp').load('/arduino/temper_temp');
 
-	</head>
+		  	if($('#heater').val() == 'On')
+			{
+				$('#heater_button').text('Heater Off');
+			}
+			else
+			{
+				$('#heater_button').text('Heater On');
+			}
+
+			if($('#bowl').val() == 'On')
+			{
+				$('#bowl_button').text('Bowl Off');
+			}
+			else
+			{
+				$('#bowl_button').text('Bowl On');
+			}
+	  	}
+		$(document).ready(function(){
+			$('#update_button').click(function(){
+				$('#melt_temp').load('arduino/melt_temp_set_'+ $("#melt_temp_val").val());
+				$('#temper_temp').load($('arduino/temper_temp_set_' + $("#temper_temp_val").val()));
+			});
+
+			$('#heater_button').click(function(){
+				$('#heater').load('arduino/heater_set');
+				
+			});
+			$('#bowl_button').click(function(){
+				$('#bowl').load('arduino/bowl_set');
+				
+			});
+		});
+	</script>
+</head>
 	<body onload="setInterval(refresh, 2000);">
-		<span id="content">0</span>
+		<p id=s"status">
+			<ul>
+				<li>
+					<p>Heater: <div id="heater">On</div></p>
+				</li>
+				<li>
+					<p>Bowl: <div id="bowl">On</div></p>
+				</li>
+				<li>
+					<p>Air Tempurature: <div id="air_temp">85</div></p>
+				</li>
+				<li>
+					<p>Chocolate Tempurature: <div id="choc_temp">84</div></p>
+				</li>
+				<li>
+					<p>Melting Tempurature: <div id="melt_temp">120</div></p>
+				</li>
+				<li>
+					<p>Tempering Tempurature: <div id="temper_temp">90</div></p>
+				</li>
+			</ul>
+		</p>
+		<p>Melting Tempurature: <input type="text" id="melt_temp_val" value="115"></p>
+		<p>Temper Tempurature: <input type="text" id="temper_temp_val" value="88"></p>
+
+		<button id="update_button">Update</button>
+		<button id="heater_button">Heater Off</button>
+		<button id="bowl_button">Bowl Off</button>
 	</body>
 </html>
 

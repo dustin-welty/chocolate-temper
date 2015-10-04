@@ -45,6 +45,11 @@ YunServer server;
 String startString;
 long hits = 0;
 
+int iMeltTemp = 100;
+int iTemperTemp = 88;
+bool bBowlOn = false;
+bool bHeaterOn = false;
+
 double Thermistor(int RawADC) {
  double Temp;
  Temp = log(10000.0*((1024.0/RawADC-1))); 
@@ -77,49 +82,86 @@ void setup() {
     startString += c;
   }
 }
-
+int temperature = 0;
+String timeString = "";
+int iCount=1;
 void loop() {
   // Get clients coming from server
   YunClient client = server.accept();
-
+  
   // There is a new client?
   if (client) {
     // read the command
     String command = client.readString();
     command.trim();        //kill whitespace
     Serial.println(command);
-    // is "temperature" command?
-    if (command == "temperature") {
 
-      // get the time from the server:
-      Process time;
-      time.runShellCommand("date");
-      String timeString = "";
-      while (time.available()) {
-        char c = time.read();
-        timeString += c;
+    if (command == "heater")
+    {
+      if (bHeaterOn)
+      {
+        client.print("On");
       }
-      Serial.println(timeString);
-      int sensorValue = analogRead(A1);
-      // convert the reading to millivolts:
-      float voltage = sensorValue *  (5000 / 1024);
-      // convert the millivolts to temperature celsius:
-      int temperature = int(Thermistor(analogRead(0)));
-      // print the temperature:
-      client.print("Current time on the Yún: ");
-      client.println(timeString);
-      client.print("<br>Current temperature: ");
-      client.print(temperature);
-      client.print(" degrees F");
-      client.print("<br>This sketch has been running since ");
-      client.print(startString);
-      client.print("<br>Hits so far: ");
-      client.print(hits);
+      else
+      {
+        client.print("Off");
+      }
+    }
+    if (command == "bowl")
+    {
+      if (bBowlOn)
+      {
+        client.print("On");
+      }
+      else
+      {
+        client.print("Off");
+      }
+    }
+    if (command == "air_temp")
+    {
+      client.print(int(Thermistor(analogRead(0))));
+    }
+    if (command == "choc_temp")
+    {
+      client.print(int(Thermistor(analogRead(0))));
+    }
+    if (command == "melt_temp")
+    {
+      client.print(iMeltTemp);
+    }
+    if (command == "temper_temp")
+    {
+      client.print(iTemperTemp);
+    }
+    if (command == "heater_set")
+    {
+      bHeaterOn = !bHeaterOn;
+
+      if (bHeaterOn)
+      {
+        client.print("On");
+      }
+      else
+      {
+        client.print("Off");
+      }
+    }
+    if (command == "bowl_set")
+    {
+      bBowlOn = !bBowlOn;
+      if (bBowlOn)
+      {
+        client.print("On");
+      }
+      else
+      {
+        client.print("Off");
+      }
     }
 
     // Close connection and free resources.
     client.stop();
-    hits++;
   }
 
   delay(50); // Poll every 50ms
