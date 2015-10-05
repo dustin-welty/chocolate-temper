@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
 	<head>
+	<link rel="stylesheet" type="text/css" href="style.css">
 	<script type="text/javascript" src="jquery.min.js"></script>
 	<script type="text/javascript">
 		function refresh() {
+			$('#chocolate_melted').load('/arduino/chocolate_melted');
 			$('#heater').load('/arduino/heater');
 			$('#bowl').load('/arduino/bowl');
 		  	$('#air_temp').load('/arduino/air_temp');
@@ -11,7 +13,7 @@
 		  	$('#melt_temp').load('/arduino/melt_temp');
 		  	$('#temper_temp').load('/arduino/temper_temp');
 
-		  	if($('#heater').val() == 'On')
+		  	if($('#heater').text() == 'On')
 			{
 				$('#heater_button').text('Heater Off');
 			}
@@ -19,8 +21,7 @@
 			{
 				$('#heater_button').text('Heater On');
 			}
-
-			if($('#bowl').val() == 'On')
+			if($('#bowl').text() == 'On')
 			{
 				$('#bowl_button').text('Bowl Off');
 			}
@@ -30,9 +31,9 @@
 			}
 	  	}
 		$(document).ready(function(){
-			$('#update_button').click(function(){
-				$('#melt_temp').load('arduino/melt_temp_set_'+ $("#melt_temp_val").val());
-				$('#temper_temp').load($('arduino/temper_temp_set_' + $("#temper_temp_val").val()));
+			$('#chocolate_melted_button').click(function(){
+				$('#chocolate_melted').load('arduino/chocolate_melted_set');
+				
 			});
 
 			$('#heater_button').click(function(){
@@ -43,38 +44,59 @@
 				$('#bowl').load('arduino/bowl_set');
 				
 			});
+
+			$('#update_button').click(function(){
+				$('#melt_temp').load('arduino/melt_temp_set_'+ $("#melt_temp_val").val());
+				$('#temper_temp').load($('arduino/temper_temp_set_' + $("#temper_temp_val").val()));
+			});
 		});
 	</script>
 </head>
 	<body onload="setInterval(refresh, 2000);">
-		<p id=s"status">
+		<div id="status">
+			Status:
 			<ul>
 				<li>
-					<p>Heater: <div id="heater">On</div></p>
+					Chocolate Melted: <div class="inline" id="chocolate_melted">No</div>
 				</li>
 				<li>
-					<p>Bowl: <div id="bowl">On</div></p>
+					<button id="chocolate_melted_button">Chocolate is Melted</button>
 				</li>
 				<li>
-					<p>Air Tempurature: <div id="air_temp">85</div></p>
+					Heater: <div class="inline" id="heater">On</div>
 				</li>
 				<li>
-					<p>Chocolate Tempurature: <div id="choc_temp">84</div></p>
+					Bowl: <div class="inline" id="bowl">On</div>
 				</li>
 				<li>
-					<p>Melting Tempurature: <div id="melt_temp">120</div></p>
+					Air Tempurature: <div class="inline" id="air_temp">85</div>
 				</li>
 				<li>
-					<p>Tempering Tempurature: <div id="temper_temp">90</div></p>
+					Chocolate Tempurature: <div class="inline" id="choc_temp">84</div>
+				</li>
+				<li>
+					Melting Tempurature: <div class="inline" id="melt_temp">120</div>
+				</li>
+				<li>
+					Tempering Tempurature: <div class="inline" id="temper_temp">90</div>
+				</li>
+				<li>
+					<button id="heater_button">Heater Off</button>
+				</li>
+				<li>
+					<button id="bowl_button">Bowl Off</button>
+				</li>
+				<li>
+					Melting Tempurature: <input type="text" id="melt_temp_val" value="115">
+				</li>
+				<li>
+					Temper Tempurature: <input type="text" id="temper_temp_val" value="88">
+				</li>
+				<li>
+					<button id="update_button">Update</button>
 				</li>
 			</ul>
-		</p>
-		<p>Melting Tempurature: <input type="text" id="melt_temp_val" value="115"></p>
-		<p>Temper Tempurature: <input type="text" id="temper_temp_val" value="88"></p>
-
-		<button id="update_button">Update</button>
-		<button id="heater_button">Heater Off</button>
-		<button id="bowl_button">Bowl Off</button>
+		</div>
 	</body>
 </html>
 

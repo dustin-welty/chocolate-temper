@@ -1,0 +1,22 @@
+
+.inline
+{
+	font-size: larger;
+	font-weight: bold;
+	float: right;
+}
+li
+{
+	padding-top: 1em;
+	float: left;
+	width: 60%;
+}
+#status
+{
+	float: left;
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 10px;
+	background: #CCCCCC;
+}

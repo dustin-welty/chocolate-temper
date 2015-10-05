@@ -38,7 +38,7 @@
 #include <Bridge.h>
 #include <YunServer.h>
 #include <YunClient.h>
-
+#include "TemperMachine.h"
 // Listen on default port 5555, the webserver on the Yún
 // will forward there all the HTTP requests for us.
 YunServer server;
@@ -49,6 +49,7 @@ int iMeltTemp = 100;
 int iTemperTemp = 88;
 bool bBowlOn = false;
 bool bHeaterOn = false;
+bool bMelting= true;
 
 double Thermistor(int RawADC) {
  double Temp;
@@ -107,7 +108,7 @@ void loop() {
         client.print("Off");
       }
     }
-    if (command == "bowl")
+    else if (command == "bowl")
     {
       if (bBowlOn)
       {
@@ -118,23 +119,46 @@ void loop() {
         client.print("Off");
       }
     }
-    if (command == "air_temp")
+    else if (command == "air_temp")
     {
       client.print(int(Thermistor(analogRead(0))));
     }
-    if (command == "choc_temp")
+    else if (command == "choc_temp")
     {
       client.print(int(Thermistor(analogRead(0))));
     }
-    if (command == "melt_temp")
+    else if (command == "melt_temp")
     {
       client.print(iMeltTemp);
     }
-    if (command == "temper_temp")
+    else if (command == "temper_temp")
     {
       client.print(iTemperTemp);
     }
-    if (command == "heater_set")
+     else if (command =="chocolate_melted")
+    {
+      if (bMelting)
+      {
+        client.print("Yes");
+      }
+      else
+      {
+        client.print("No");
+      }
+    }
+    else if (command =="chocolate_melted_set")
+    {
+      bMelting = !bMelting;
+      if (bMelting)
+      {
+        client.print("Yes");
+      }
+      else
+      {
+        client.print("No");
+      }
+    }
+    else if (command == "heater_set")
     {
       bHeaterOn = !bHeaterOn;
 
@@ -147,7 +171,7 @@ void loop() {
         client.print("Off");
       }
     }
-    if (command == "bowl_set")
+    else if (command == "bowl_set")
     {
       bBowlOn = !bBowlOn;
       if (bBowlOn)
