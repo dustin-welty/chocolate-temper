@@ -39,22 +39,35 @@ http://arduino.cc/en/Tutorial/TemperatureWebPanel
 #include <YunServer.h>
 #include <YunClient.h>
 #include "TemperMachine.h"
+
+#define CHOCOLATE_TEMP_PIN  0
+#define AIR_TEMP_PIN 1
+#define HEATER_PIN8 8
+#define HEATER_PIN9 9
+
 // Listen on default port 5555, the webserver on the Yún
 // will forward there all the HTTP requests for us.
 YunServer server;
-String startString;
-long hits = 0;
+// Create the motor shield object with the default I2C address
+Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
+Adafruit_DCMotor *pBowlMotor = AFMS.getMotor(1);
+Adafruit_DCMotor *pHeaterFan = AFMS.getMotor(3);
+Adafruit_DCMotor *pExhaustFan = AFMS.getMotor(4);
 
-int iMeltTemp = 100;
-int iTemperTemp = 88;
-bool bBowlOn = false;
-bool bHeaterOn = false;
-bool bMelting= true;
-int temperature = 0;
-String timeString = "";
-int iCount=1;
+TemperMachine machine;
 
-double Thermistor(int RawADC) 
+double ThermistorChocolate(int RawADC) 
+{
+    double Temp;
+    Temp = log(10000.0*((1024.0/RawADC-1))); 
+    //         =log(10000.0/(1024.0/RawADC-1)) // for pull-up configuration
+    Temp = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * Temp * Temp ))* Temp );
+    Temp = Temp - 273.15;            // Convert Kelvin to Celcius
+    Temp = (Temp * 9.0)/ 5.0 + 32.0; // Convert Celcius to Fahrenheit
+    return Temp;
+}
+
+double ThermistorAir(int RawADC) 
 {
     double Temp;
     Temp = log(10000.0*((1024.0/RawADC-1))); 
@@ -80,14 +93,30 @@ void setup()
     server.listenOnLocalhost();
     server.begin();
 
-    // get the time that this sketch started:
-    Process startTime;
-    startTime.runShellCommand("date");
-    while (startTime.available()) 
-    {
-        char c = startTime.read();
-        startString += c;
-    }
+    AFMS.begin();
+
+    pBowlMotor->setSpeed(255);
+    pHeaterFan->setSpeed(255);
+    pExhaustFan->setSpeed(255);
+
+    pBowlMotor->run(RELEASE);
+    pHeaterFan->run(RELEASE);
+    pExhaustFan->run(RELEASE);
+
+    //setup the pin0, pin1 for out put to control heater
+    pinMode(HEATER_PIN8, OUTPUT);
+    pinMode(HEATER_PIN9, OUTPUT);
+    //make sure the heater is off
+    digitalWrite(HEATER_PIN8, LOW);
+    digitalWrite(HEATER_PIN9, LOW);
+
+    //set up the Thermistor pins
+    analogReference(DEFAULT);
+    
+    machine.Init(false, false, false, false);
+
+    machine.SetCurrentChocolateTemp(int(ThermistorChocolate(analogRead(CHOCOLATE_TEMP_PIN))));
+    machine.SetCurrentAirTemp(int(ThermistorAir(analogRead(AIR_TEMP_PIN))));
 }
 
 void loop() 
@@ -99,95 +128,14 @@ void loop()
     if (client)
     {
         // read the command
-        String command = client.readString();
-        command.trim();        //kill whitespace
-        Serial.println(command);
+        String sResult;
+        String sCommand = client.readString();
+        sCommand.trim();        //kill whitespace
+        Serial.println(sCommand);
 
-        if (command == "heater")
+        if (bCommand(sCommand, &sResult))
         {
-            if (bHeaterOn)
-            {
-               client.print("On");
-            }
-            else
-            {
-                client.print("Off");
-            }
-        }
-        else if (command == "bowl")
-        {
-            if (bBowlOn)
-            {
-                client.print("On");
-            }
-            else
-            {
-                client.print("Off");
-            }
-        }
-        else if (command == "air_temp")
-        {
-            client.print(int(Thermistor(analogRead(0))));
-        }
-        else if (command == "choc_temp")
-        {
-            client.print(int(Thermistor(analogRead(0))));
-        }
-        else if (command == "melt_temp")
-        {
-            client.print(iMeltTemp);
-        }
-        else if (command == "temper_temp")
-        {
-            client.print(iTemperTemp);
-        }
-        else if (command =="chocolate_melted")
-        {
-            if (bMelting)
-            {
-                client.print("Yes");
-            }
-            else
-            {
-                client.print("No");
-            }
-        }
-        else if (command =="chocolate_melted_set")
-        {
-            bMelting = !bMelting;
-            if (bMelting)
-            {
-                client.print("Yes");
-            }
-            else
-            {
-                client.print("No");
-            }
-        }
-        else if (command == "heater_set")
-        {
-            bHeaterOn = !bHeaterOn;
-
-            if (bHeaterOn)
-            {
-               client.print("On");
-            }
-            else
-            {
-                client.print("Off");
-            }
-        }
-        else if (command == "bowl_set")
-        {
-            bBowlOn = !bBowlOn;
-            if (bBowlOn)
-            {
-                client.print("On");
-            }
-            else
-            {
-                client.print("Off");
-            }
+            client.print(sResult);
         }
 
         // Close connection and free resources.

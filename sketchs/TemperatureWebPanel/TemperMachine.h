@@ -1,13 +1,14 @@
+
 class TemperMachine
 {
 public:
 	TemperMachine(byte byMeltingTemp = 100, byte byTemperTemp = 86, byte byHoldingTemp= 88);
-	~TemperMachine();
+	~TemperMachine(void);
 
 	//get/set settings
-	byte byGetMeltingTemp() { return m_byMeltingTemp; }
-	byte byGetTemperTemp() { return m_byTemperTemp; }
-	byte byGetHoldingTemp() { return m_byHoldingTemp; }
+	byte byGetMeltingTemp(void) { return m_byMeltingTemp; }
+	byte byGetTemperTemp(void) { return m_byTemperTemp; }
+	byte byGetHoldingTemp(void) { return m_byHoldingTemp; }
 	void SetMeltingTemp(byte byTemp) { m_byMeltingTemp = byTemp; }
 	void SetTemperTemp(byte byTemp) { m_byTemperTemp = byTemp; }
 	void SetHoldingTemp(byte byTemp) { m_byHoldingTemp = byTemp; }
@@ -21,14 +22,13 @@ public:
 	void SetBowlTurning(bool bTurning) { m_bBowlTurning = bTurning; }
 	void bIsMelting(bool bIsMelting) { m_bIsMelting = bIsMelting; }
 
-	byte byGetCurrentChocolateTemp() { return m_byCurrentAirTemp; }
-	byte byGetCurrentAirTemp() { return m_byCurrentChocolateTemp; }
-	bool bGetHeaterRunning() { return m_bHeaterRunning; }
-	bool bGetHeaterFanRunning() { return m_bHeaterFanRunning; }
-	bool bGetExhaustFanRunning() { return m_bExhaustFanRunning; }
-	bool bGetBowlTurning() { return m_bBowlTurning; }
-	bool bIsMelting() { return m_bIsMelting; }
-
+	byte byGetCurrentChocolateTemp(void) { return m_byCurrentAirTemp; }
+	byte byGetCurrentAirTemp(void) { return m_byCurrentChocolateTemp; }
+	bool bGetHeaterRunning(void) { return m_bHeaterRunning; }
+	bool bGetHeaterFanRunning(void) { return m_bHeaterFanRunning; }
+	bool bGetExhaustFanRunning(void) { return m_bExhaustFanRunning; }
+	bool bGetBowlTurning(void) { return m_bBowlTurning; }
+	bool bIsMelting(void) { return m_bIsMelting; }
 
 	void Init(bool bHeaterRunning, bool bHeaterFanRunning, bool bExhaustFanRunning, bool bBowlTurning);
 
@@ -37,7 +37,6 @@ public:
 	bool bCommand(String &sCommand, String *psReturnVal);
 	void GetValuesToSet(bool *pbHeaterOn, bool *pbHeaterFanOn, bool *pbExhaustFanOn, bool *bBowlOn); 
 
-	
 private:
 	// internal settings
 	byte m_byMeltingTemp;
