@@ -55,27 +55,66 @@ Adafruit_DCMotor *pHeaterFan = AFMS.getMotor(3);
 Adafruit_DCMotor *pExhaustFan = AFMS.getMotor(4);
 
 TemperMachine machine;
+ 
+#define     ADC_SAMPLES        10      // Number of ADC samples to average
+                                      // when taking a reading.
+// Temperature unit conversion functions and state.
+typedef float (*TempConversion)(float);
+TempConversion ToKelvin; 
+TempConversion FromKelvin;
 
-double ThermistorChocolate(int RawADC) 
-{
-    double Temp;
-    Temp = log(10000.0*((1024.0/RawADC-1))); 
-    //         =log(10000.0/(1024.0/RawADC-1)) // for pull-up configuration
-    Temp = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * Temp * Temp ))* Temp );
-    Temp = Temp - 273.15;            // Convert Kelvin to Celcius
-    Temp = (Temp * 9.0)/ 5.0 + 32.0; // Convert Celcius to Fahrenheit
-    return Temp;
+double readResistance(byte pin, byte resistor) {
+  float reading = 0;
+  for (int i = 0; i < ADC_SAMPLES; ++i) {
+    reading += analogRead(pin);
+  }
+  reading /= (float)ADC_SAMPLES;
+  reading = (1023 / reading) - 1;
+  return resistor / reading;
 }
 
-double ThermistorAir(int RawADC) 
+float kelvinToFahrenheit(float kelvin) {
+  return kelvin*(9.0/5.0) - 459.67;
+}
+
+float fahrenheitToKelvin(float fahrenheit) {
+  return (fahrenheit + 459.67)*(5.0/9.0);
+}
+
+float kelvinToCelsius(float kelvin) {
+  return kelvin - 273.15;
+}
+
+float celsiusToKelvin(float celsius) {
+  return celsius + 273.15; 
+}
+
+float readTemp(byte pin, byte resistor, float A, float B, float, C) {
+  float R = readResistance(pin, resistor);
+  float kelvin = 1.0/(A + B*log(R) + C*pow(log(R), 3.0));
+  return kelvin;
+}
+
+double ThermistorChocolate() 
 {
-    double Temp;
-    Temp = log(10000.0*((1024.0/RawADC-1))); 
-    //         =log(10000.0/(1024.0/RawADC-1)) // for pull-up configuration
-    Temp = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * Temp * Temp ))* Temp );
-    Temp = Temp - 273.15;            // Convert Kelvin to Celcius
-    Temp = (Temp * 9.0)/ 5.0 + 32.0; // Convert Celcius to Fahrenheit
-    return Temp;
+    float A = -0.004087081909;
+    float B = 0.000595037555;
+    float C = -0.000000514512;
+    unsigned int uiResistor = 1000000;
+
+    float Temp = readTemp(CHOCOLATE_TEMP_PIN, uiResistor, A, B, C);
+    return (int)kelvinToFahrenheit(Temp);
+}
+
+double ThermistorAir() 
+{
+    float A = 0.001363054633;
+    float B = 0.000193818082;
+    float C = 0.000000257738;
+    unsigned int uiResistor = 10000;
+
+    float Temp = readTemp(AIR_TEMP_PIN, uiResistor, A, B, C);
+    return (int)kelvinToFahrenheit(Temp);
 }
 
 void setup()
@@ -115,8 +154,8 @@ void setup()
     
     machine.Init(false, false, false, false);
 
-    machine.SetCurrentChocolateTemp(int(ThermistorChocolate(analogRead(CHOCOLATE_TEMP_PIN))));
-    machine.SetCurrentAirTemp(int(ThermistorAir(analogRead(AIR_TEMP_PIN))));
+    machine.SetCurrentChocolateTemp(int(ThermistorChocolate()));
+    machine.SetCurrentAirTemp(int(ThermistorAir()));
 }
 
 void loop() 
@@ -142,6 +181,8 @@ void loop()
         client.stop();
     }
 
+    machine.SetCurrentChocolateTemp(int(ThermistorChocolate()));
+    machine.SetCurrentAirTemp(int(ThermistorAir()));
     delay(50); // Poll every 50ms
 }
 
