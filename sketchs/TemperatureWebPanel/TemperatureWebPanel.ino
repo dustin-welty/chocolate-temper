@@ -183,6 +183,14 @@ void loop()
 
     machine.SetCurrentChocolateTemp(int(ThermistorChocolate()));
     machine.SetCurrentAirTemp(int(ThermistorAir()));
+
+    bool bHeaterOn = false;
+    bool bHeaterFanOn = false;
+    bool bExhaustFanOn = false;
+    bool bBowlOn = false;
+
+    machine.GetValuesToSet(&bHeaterOn, &bHeaterFanOn, &bExhaustFanOn, &bExhaustFanOn);
+
     delay(50); // Poll every 50ms
 }
 

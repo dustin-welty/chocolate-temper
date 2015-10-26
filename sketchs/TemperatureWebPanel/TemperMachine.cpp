@@ -26,11 +26,11 @@ bool TemperMachine::bCommand(String &sCommand, String *psReturnVal);
     }
     else if (sCommand == "air_temp")
     {
-        *psReturnVal = 
+        *psReturnVal = m_byCurrentAirTemp;
     }
     else if (sCommand == "choc_temp")
     {
-        *psReturnVal = int(Thermistor(analogRead(0)));
+        *psReturnVal = m_byCurrentChocolateTemp;
     }
     else if (sCommand == "melt_temp")
     {
