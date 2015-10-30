@@ -1,47 +1,55 @@
+#ifndef __TEMPERMACHINE_H__
+#define __TEMPERMACHINE_H__
+
+#define BYTE unsigned char
 
 class TemperMachine
 {
 public:
-	TemperMachine(byte byMeltingTemp = 100, byte byTemperTemp = 86, byte byHoldingTemp= 88);
-	~TemperMachine(void);
+	TemperMachine(BYTE byMeltingTemp = 100, BYTE BYTEmperTemp = 86, BYTE byHoldingTemp= 88);
+	~TemperMachine(void) {};
 
 	//get/set settings
-	byte byGetMeltingTemp(void) { return m_byMeltingTemp; }
-	byte byGetTemperTemp(void) { return m_byTemperTemp; }
-	byte byGetHoldingTemp(void) { return m_byHoldingTemp; }
-	void SetMeltingTemp(byte byTemp) { m_byMeltingTemp = byTemp; }
-	void SetTemperTemp(byte byTemp) { m_byTemperTemp = byTemp; }
-	void SetHoldingTemp(byte byTemp) { m_byHoldingTemp = byTemp; }
+	BYTE byGetMeltingTemp(void) { return m_byMeltingTemp; }
+	BYTE byGetTemperTemp(void) { return m_byTemperTemp; }
+	BYTE byGetHoldingTemp(void) { return m_byHoldingTemp; }
+	void SetMeltingTemp(BYTE BYTEmp) { m_byMeltingTemp = BYTEmp; }
+	void SetTemperTemp(BYTE BYTEmp) { m_byTemperTemp = BYTEmp; }
+	void SetHoldingTemp(BYTE BYTEmp) { m_byHoldingTemp = BYTEmp; }
 
 	//get/set state
-	void SetCurrentChocolateTemp(byte byTemp) { m_byCurrentAirTemp = byTemp; }
-	void SetCurrentAirTemp(byte byTemp) { m_byCurrentChocolateTemp = byTemp; }
+	void SetCurrentChocolateTemp(BYTE BYTEmp) { m_byCurrentAirTemp = BYTEmp; }
+	void SetCurrentAirTemp(BYTE BYTEmp) { m_byCurrentChocolateTemp = BYTEmp; }
 	void SetHeaterRunning(bool bRunning) { m_bHeaterRunning = bRunning; }
 	void SetHeaterFanRunning(bool bRunning) { m_bHeaterFanRunning = bRunning; }
 	void SetExhaustFanRunning(bool bRunning) { m_bExhaustFanRunning = bRunning; }
 	void SetBowlTurning(bool bTurning) { m_bBowlTurning = bTurning; }
-	void bIsMelting(bool bIsMelting) { m_bIsMelting = bIsMelting; }
+	void SetMelting(bool bIsMelting) { m_bIsMelting = bIsMelting; }
+	void SetOn(bool bIsOn) { m_bOn = bIsOn; }
+	void SetHold(bool bIsHold) {m_bHold = bIsHold; }
 
-	byte byGetCurrentChocolateTemp(void) { return m_byCurrentAirTemp; }
-	byte byGetCurrentAirTemp(void) { return m_byCurrentChocolateTemp; }
+	BYTE byGetCurrentChocolateTemp(void) { return m_byCurrentAirTemp; }
+	BYTE byGetCurrentAirTemp(void) { return m_byCurrentChocolateTemp; }
 	bool bGetHeaterRunning(void) { return m_bHeaterRunning; }
 	bool bGetHeaterFanRunning(void) { return m_bHeaterFanRunning; }
 	bool bGetExhaustFanRunning(void) { return m_bExhaustFanRunning; }
 	bool bGetBowlTurning(void) { return m_bBowlTurning; }
 	bool bIsMelting(void) { return m_bIsMelting; }
+	bool bIsOn(void) { return m_bOn; }
+	bool bIsHold(void) {return m_bHold; }
 
 	void Init(bool bHeaterRunning, bool bHeaterFanRunning, bool bExhaustFanRunning, bool bBowlTurning);
 
 	//logic level/operation methods
 	//recieves the command a returns the result to be displayed
-	bool bCommand(String &sCommand, String *psReturnVal);
+	bool bCommand(const char *psCommand, char *psReturnVal);
 	void GetValuesToSet(bool *pbHeaterOn, bool *pbHeaterFanOn, bool *pbExhaustFanOn, bool *bBowlOn); 
 
 private:
 	// internal settings
-	byte m_byMeltingTemp;
-	byte m_byTemperTemp;
-	byte m_byHoldingTemp;
+	BYTE m_byMeltingTemp;
+	BYTE m_byTemperTemp;
+	BYTE m_byHoldingTemp;
 
 	// internal state
 	bool m_bHeaterRunning;
@@ -50,6 +58,11 @@ private:
 	bool m_bBowlTurning;
 	bool m_bIsMelting;
 
-	byte m_byCurrentAirTemp;
-	byte m_byCurrentChocolateTemp;
+	bool m_bOn;
+	bool m_bHold;
+
+	BYTE m_byCurrentAirTemp;
+	BYTE m_byCurrentChocolateTemp;
 };
+
+#endif

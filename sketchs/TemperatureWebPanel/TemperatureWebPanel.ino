@@ -38,21 +38,26 @@ http://arduino.cc/en/Tutorial/TemperatureWebPanel
 #include <Bridge.h>
 #include <YunServer.h>
 #include <YunClient.h>
+#include <Wire.h>
+#include <Adafruit_MotorShield.h>
 #include "TemperMachine.h"
 
 #define CHOCOLATE_TEMP_PIN  0
 #define AIR_TEMP_PIN 1
-#define HEATER_PIN8 8
-#define HEATER_PIN9 9
+
+#define HEATER_PIN1 8
+#define HEATER_PIN2 9
+
+#define BOWL_PIN  10
 
 // Listen on default port 5555, the webserver on the Yún
 // will forward there all the HTTP requests for us.
 YunServer server;
 // Create the motor shield object with the default I2C address
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
-Adafruit_DCMotor *pBowlMotor = AFMS.getMotor(1);
-Adafruit_DCMotor *pHeaterFan = AFMS.getMotor(3);
-Adafruit_DCMotor *pExhaustFan = AFMS.getMotor(4);
+
+Adafruit_DCMotor *pHeaterFan = AFMS.getMotor(1);
+Adafruit_DCMotor *pExhaustFan = AFMS.getMotor(2);
 
 TemperMachine machine;
  
@@ -89,7 +94,7 @@ float celsiusToKelvin(float celsius) {
   return celsius + 273.15; 
 }
 
-float readTemp(byte pin, byte resistor, float A, float B, float, C) {
+float readTemp(byte pin, byte resistor, float A, float B, float C) {
   float R = readResistance(pin, resistor);
   float kelvin = 1.0/(A + B*log(R) + C*pow(log(R), 3.0));
   return kelvin;
@@ -117,6 +122,56 @@ double ThermistorAir()
     return (int)kelvinToFahrenheit(Temp);
 }
 
+void HeaterOnOff(bool bOn)
+{
+    if (bOn)
+    {
+        digitalWrite(HEATER_PIN1, HIGH);
+        digitalWrite(HEATER_PIN2, HIGH);
+    }
+    else
+    {
+        digitalWrite(HEATER_PIN1, LOW);
+        digitalWrite(HEATER_PIN2, LOW);
+    }
+}
+
+void BowlOnOff(bool bOn)
+{
+    if (bOn)
+    {
+        digitalWrite(BOWL_PIN, HIGH);
+    }
+    else
+    {
+        digitalWrite(BOWL_PIN, LOW);
+    }
+}
+
+void HeaterFanOn(bool bOn)
+{
+    if (bOn)
+    {
+        pHeaterFan->run(FORWARD);
+    }
+    else
+    {
+        pHeaterFan->run(RELEASE);
+    }
+}
+
+void ExhaustFanOn(bool bOn)
+{
+    if (bOn)
+    {
+        pExhaustFan->run(FORWARD);
+    }
+    else
+    {
+        pExhaustFan->run(RELEASE);
+    }
+}
+
 void setup()
 {
     Serial.begin(9600);
@@ -134,20 +189,20 @@ void setup()
 
     AFMS.begin();
 
-    pBowlMotor->setSpeed(255);
     pHeaterFan->setSpeed(255);
     pExhaustFan->setSpeed(255);
 
-    pBowlMotor->run(RELEASE);
-    pHeaterFan->run(RELEASE);
-    pExhaustFan->run(RELEASE);
+    HeaterFanOn(false);
+    ExhaustFanOn(false);
 
     //setup the pin0, pin1 for out put to control heater
-    pinMode(HEATER_PIN8, OUTPUT);
-    pinMode(HEATER_PIN9, OUTPUT);
+    pinMode(HEATER_PIN1, OUTPUT);
+    pinMode(HEATER_PIN2, OUTPUT);
+
+    pinMode(BOWL_PIN, OUTPUT);
     //make sure the heater is off
-    digitalWrite(HEATER_PIN8, LOW);
-    digitalWrite(HEATER_PIN9, LOW);
+    HeaterOnOff(false);
+    BowlOnOff(false);
 
     //set up the Thermistor pins
     analogReference(DEFAULT);
@@ -167,14 +222,14 @@ void loop()
     if (client)
     {
         // read the command
-        String sResult;
+        char scResult[30];
         String sCommand = client.readString();
         sCommand.trim();        //kill whitespace
         Serial.println(sCommand);
 
-        if (bCommand(sCommand, &sResult))
+        if (machine.bCommand(sCommand.c_str(), scResult))
         {
-            client.print(sResult);
+            client.print(scResult);
         }
 
         // Close connection and free resources.
@@ -189,7 +244,12 @@ void loop()
     bool bExhaustFanOn = false;
     bool bBowlOn = false;
 
-    machine.GetValuesToSet(&bHeaterOn, &bHeaterFanOn, &bExhaustFanOn, &bExhaustFanOn);
+    machine.GetValuesToSet(&bHeaterOn, &bHeaterFanOn, &bExhaustFanOn, &bBowlOn);
+
+    HeaterFanOn(bHeaterFanOn);
+    ExhaustFanOn(bExhaustFanOn);
+    HeaterOnOff(bHeaterOn);
+    BowlOnOff(bBowlOn);
 
     delay(50); // Poll every 50ms
 }

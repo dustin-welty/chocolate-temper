@@ -5,6 +5,8 @@
 	<script type="text/javascript" src="jquery.min.js"></script>
 	<script type="text/javascript">
 		function refresh() {
+			$('#machine').load('/arduino/machine');
+			$('#hold').load('/arduino/hold');
 			$('#chocolate_melted').load('/arduino/chocolate_melted');
 			$('#heater').load('/arduino/heater');
 			$('#bowl').load('/arduino/bowl');
@@ -12,22 +14,23 @@
 		  	$('#choc_temp').load('/arduino/choc_temp');
 		  	$('#melt_temp').load('/arduino/melt_temp');
 		  	$('#temper_temp').load('/arduino/temper_temp');
+		  	$('#hold_temp').load('/arduino/hold_temp');
 
-		  	if($('#heater').text() == 'On')
+		  	if($('#machine').text() == 'On')
 			{
-				$('#heater_button').text('Heater Off');
+				$('#machine_button').text('Temper Machine Off');
 			}
 			else
 			{
-				$('#heater_button').text('Heater On');
+				$('#machine_button').text('Temper Machine On');
 			}
-			if($('#bowl').text() == 'On')
+			if($('#hold').text() == 'On')
 			{
-				$('#bowl_button').text('Bowl Off');
+				$('#hold_button').text('Hold Off');
 			}
 			else
 			{
-				$('#bowl_button').text('Bowl On');
+				$('#hold_button').text('Hold On');
 			}
 	  	}
 		$(document).ready(function(){
@@ -36,18 +39,18 @@
 				
 			});
 
-			$('#heater_button').click(function(){
-				$('#heater').load('arduino/heater_set');
+			$('#machine_button').click(function(){
+				$('#machine').load('arduino/on_set');
 				
 			});
-			$('#bowl_button').click(function(){
-				$('#bowl').load('arduino/bowl_set');
+			$('#hold_button').click(function(){
+				$('#hold').load('arduino/hold_set');
 				
 			});
 
 			$('#update_button').click(function(){
 				$('#melt_temp').load('arduino/melt_temp_set_'+ $("#melt_temp_val").val());
-				$('#temper_temp').load($('arduino/temper_temp_set_' + $("#temper_temp_val").val()));
+				$('#temper_temp').load($('arduino/temper_temp_set' + $("#temper_temp_val").val()));
 			});
 		});
 	</script>
@@ -56,6 +59,18 @@
 		<div id="status">
 			Status:
 			<ul>
+				<li>
+					<button id="machine_button">Temper Machine On</button>
+				</li>
+				<li>
+					Temper Machine: <div class="inline" id="machine">Off</div>
+				</li>
+				<li>
+					<button id="hold_button">Hold Off</button>
+				</li>
+				<li>
+					Temper Machine: <div class="inline" id="hold">Off</div>
+				</li>
 				<li>
 					Chocolate Melted: <div class="inline" id="chocolate_melted">No</div>
 				</li>
@@ -75,22 +90,22 @@
 					Chocolate Tempurature: <div class="inline" id="choc_temp">84</div>
 				</li>
 				<li>
-					Melting Tempurature: <div class="inline" id="melt_temp">120</div>
+					Melting Tempurature: <div class="inline" id="melt_temp">110</div>
 				</li>
 				<li>
-					Tempering Tempurature: <div class="inline" id="temper_temp">90</div>
+					Tempering Tempurature: <div class="inline" id="temper_temp">86</div>
 				</li>
 				<li>
-					<button id="heater_button">Heater Off</button>
+					Hold Tempurature: <div class="inline" id="hold_temp">88</div>
 				</li>
 				<li>
-					<button id="bowl_button">Bowl Off</button>
+					Melting Tempurature: <input type="text" id="melt_temp_val" value="105">
 				</li>
 				<li>
-					Melting Tempurature: <input type="text" id="melt_temp_val" value="115">
+					Temper Tempurature: <input type="text" id="temper_temp_val" value="86">
 				</li>
 				<li>
-					Temper Tempurature: <input type="text" id="temper_temp_val" value="88">
+					Hold Tempurature: <input type="text" id="holdtemp_val" value="88">
 				</li>
 				<li>
 					<button id="update_button">Update</button>
