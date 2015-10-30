@@ -1,6 +1,12 @@
 #ifndef __TEMPERMACHINE_H__
 #define __TEMPERMACHINE_H__
 
+/*
+Need comments
+
+Copywrite Dustin J Welty 2015
+*/
+
 #define BYTE unsigned char
 
 class TemperMachine

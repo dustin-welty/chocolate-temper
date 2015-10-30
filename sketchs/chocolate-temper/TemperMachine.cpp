@@ -1,3 +1,8 @@
+/*
+Need comments
+
+Copywrite Dustin J Welty 2015
+*/
 
 #include "TemperMachine.h"
 #include <stdio.h>
